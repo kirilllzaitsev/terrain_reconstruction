@@ -1,9 +1,7 @@
-import copy
 import typing as t
 
 import torch
 import torch.nn as nn
-import warp as wp
 from terrain_representation.utils.utils import DeviceType
 
 
@@ -138,10 +136,6 @@ class TerrainNetLayerNorm(nn.Module):
         self.map_dim = map_dim
         self.map_resolution = map_resolution
 
-        # self.feature_dims_enc = [16, 32, 64, 128]
-        # self.feature_dims_dec = [128, 64, 64, 32, 16]
-        # self.feature_dims_enc = [16, 32, 32, 64]
-        # self.feature_dims_dec = [64, 64, 32, 16, 16]
         if use_prev_pred_as_input:
             self.in_channels = 6
         else:
@@ -278,13 +272,6 @@ class TerrainNetLayerNorm(nn.Module):
         if self.use_prev_pred_as_input and measured_voxel_grid.shape[-1] != 6:
             self.prev_voxel_grid_transformed = torch.zeros_like(measured_voxel_grid)
             self.prev_voxel_grid_transformed.fill_(-1.0)
-            # Concatenate the measured and the previous voxel grid and transpose to get the features after the batch dim
-            # measured_voxel_grid[measured_voxel_grid[..., 0] < 0.0] = (
-            #     0.0  # clamp features to 0 with X cell feature < 0
-            # )
-            # self.prev_voxel_grid_transformed[
-            #     self.prev_voxel_grid_transformed[..., 0] < 0.0
-            # ] = 0.0
             assert (
                 measured_voxel_grid.shape == self.prev_voxel_grid_transformed.shape
             ), f"{measured_voxel_grid.shape=} != {self.prev_voxel_grid_transformed.shape=}"
@@ -332,7 +319,7 @@ class TerrainNetLayerNorm(nn.Module):
 
 
 class SensorClassifierNet(nn.Module):
-    """Classifier network for the LiDAR sensor model."""
+    """Classifier network for the LiDAR sensor model (sensors have different sparsity profiles, hinting the completion net)."""
 
     def __init__(
         self,
@@ -397,9 +384,6 @@ class SensorClassifierNet(nn.Module):
                 norm_layer if norm_layer_name != "instance_norm" else nn.LayerNorm
             ),
         )
-        # self.head = nn.Sequential(
-        #     nn.Linear(self.feature_dims_enc[-1] * (int(map_dim / 32)) ** 3, n_classes),
-        # )
         fc_input_dim = self.feature_dims_enc[-1] * (int(map_dim / 32)) ** 3
         vg_flat_to_fc_layer = nn.Linear(fc_input_dim, fc_dims[0])
         fc_layers = [vg_flat_to_fc_layer]
