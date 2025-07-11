@@ -609,11 +609,5 @@ if __name__ == "__main__":
                 ),
                 nprocs=world_size,
             )
-            # world_size = int(os.environ.get("WORLD_SIZE", torch.cuda.device_count()))
-            # rank = int(os.environ.get("SLURM_PROCID", 0))
-            # args.master_port = os.environ.get(
-            #     "MASTER_PORT", np.random.randint(20000, 30000)
-            # )
-            # main(rank, world_size, args)
         else:
             main(0, 1, args)

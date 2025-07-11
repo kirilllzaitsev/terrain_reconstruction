@@ -194,8 +194,8 @@ def main(
                     if key == "train":
                         optimizer.zero_grad()
                         losses["loss"].backward()
-                        # max_norm = 1.0
-                        # torch.nn.utils.clip_grad_norm_(network.parameters(), max_norm)
+                        max_norm = 1.0
+                        torch.nn.utils.clip_grad_norm_(network.parameters(), max_norm)
                         optimizer.step()
 
                     update_statistics_with_losses(
@@ -450,11 +450,5 @@ if __name__ == "__main__":
                 ),
                 nprocs=world_size,
             )
-            # world_size = int(os.environ.get("WORLD_SIZE", torch.cuda.device_count()))
-            # rank = int(os.environ.get("SLURM_PROCID", 0))
-            # args.master_port = os.environ.get(
-            #     "MASTER_PORT", np.random.randint(20000, 30000)
-            # )
-            # main(rank, world_size, args)
         else:
             main(0, 1, args)

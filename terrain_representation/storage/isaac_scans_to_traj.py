@@ -1,12 +1,10 @@
-import functools
 import glob
 import json
 import os
 import shutil
 import typing as t
 from collections import defaultdict
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from multiprocessing import Pool, get_context
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +23,6 @@ from terrain_synthesis.utils.postprocessing_utils import (
     conv_xyhw_to_xyxy,
 )
 from terrain_synthesis.utils.utils import get_ordered_paths
-from terrain_synthesis.utils.vis_utils import plot_point_cloud, plot_point_cloud_pyplot
 from tqdm.auto import tqdm
 
 base_save_dir = f"{root_dir}/data/train"
@@ -317,46 +314,6 @@ def convert_numpy_to_trajectory(
     if not metadata_found:
         print("metadata.json file not found. Assuming all terrains are synthetic.")
 
-    # if val_pkls_num > 0:
-    #     val_terrain_synt_names = [
-    #         Path(terrain_dirs[idx]).name
-    #         for idx in np.random.choice(
-    #             [
-    #                 i
-    #                 for i, is_synthetic in enumerate(is_synthetic_masks)
-    #                 if is_synthetic
-    #             ],
-    #             val_pkls_synt_num,
-    #             replace=False,
-    #         )
-    #     ]
-    # else:
-    #     val_terrain_synt_names = []
-    # if val_pkls_num - val_pkls_synt_num > 0:
-    #     real_names = [
-    #         Path(terrain_dirs[idx]).name
-    #         for idx, is_synthetic in enumerate(is_synthetic_masks)
-    #         if not is_synthetic
-    #     ]
-    #     if val_pkls_idxs is not None:
-    #         assert (
-    #             len(val_pkls_idxs) <= val_pkls_num - val_pkls_synt_num
-    #         ), f"Number of real .pkl files to use for validation is greater than {val_pkls_num - val_pkls_synt_num}"
-    #         val_terrain_real_names = [
-    #             name for name in real_names if name in val_pkls_idxs
-    #         ]
-    #     else:
-    #         val_terrain_real_names = [
-    #             n
-    #             for n in np.random.choice(
-    #                 real_names,
-    #                 val_pkls_num - val_pkls_synt_num,
-    #                 replace=False,
-    #             )
-    #         ]
-    # else:
-    #     val_terrain_real_names = []
-
     val_save_dir = f"{base_save_dir_val}/{save_dir_name}"
     train_save_dir = f"{base_save_dir}/{save_dir_name}"
     if args.do_reload:
@@ -377,24 +334,6 @@ def convert_numpy_to_trajectory(
         d for d in terrain_dirs if Path(d).name not in processed_terrain_names
     ]
 
-    # save_dirs = [
-    #     (
-    #         val_save_dir
-    #         if name in val_terrain_synt_names or name in val_terrain_real_names
-    #         else train_save_dir
-    #     )
-    #     for name in [Path(d).name for d in terrain_dirs]
-    # ]
-    # save_dirs = {
-    #     terrain_dir: (
-    #         val_save_dir
-    #         if Path(terrain_dir).name in val_terrain_synt_names
-    #         or Path(terrain_dir).name in val_terrain_real_names
-    #         else train_save_dir
-    #     )
-    #     for terrain_dir in terrain_dirs
-    # }
-
     ignored_trajectories = {
         val_save_dir: defaultdict(list),
         train_save_dir: defaultdict(list),
@@ -402,15 +341,12 @@ def convert_numpy_to_trajectory(
 
     num_workers = args.num_workers
 
-    # terrain_dirs = terrain_dirs[:num_workers]
-
     total_samples = {val_save_dir: 0, train_save_dir: 0}
     terrain_dirs_idx_chunks = split_list_into_n_chunks(
         range(len(terrain_dirs)), len(terrain_dirs) // args.pkl_size
     )
 
     if val_pkls_num > 0:
-        # TODO: this does not deal with synt/real split for now
         val_pkls_idxs = (
             val_pkls_idxs
             if val_pkls_idxs is not None
@@ -587,24 +523,6 @@ def get_shift_of_pts_in_sensor_frame_to_center(
         random_shift[1] = 2 * max_lim
 
     return random_shift
-
-
-def save_overfit_trajectory(
-    point_cloud: np.ndarray, save_dir_name: str
-) -> PointCloudTrajectoryStorage:
-    """Saves a single trajectory with 10 samples of the same point cloud."""
-    raise NotImplementedError("This function is not used.")
-    traj = PointCloudTrajectory()
-    for _ in range(10):
-        add_new_traj_sample(traj, point_cloud, point_cloud, np.eye(4))
-    storage = PointCloudTrajectoryStorage()
-    storage.append(traj)
-    storage.append(traj)
-    storage.append(traj)
-    save_dir = f"{base_save_dir}/{save_dir_name}"
-    os.makedirs(save_dir, exist_ok=True)
-    storage.dump(f"{save_dir}/trajectory.pkl")
-    return storage
 
 
 if __name__ == "__main__":

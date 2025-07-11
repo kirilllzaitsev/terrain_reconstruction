@@ -12,10 +12,6 @@ class PointCloudDatasetAdapterPointAttn:
         self.gt_pts_scaler = gt_pts_scaler
         self.use_pc_norm = use_pc_norm
         self.use_randperm = use_randperm
-        # cannot do up until self.num_pts because the points are ordered by increasing coordinate and self.num_pts is a bias toward those that go first
-        # if not self.use_randperm:
-        #     self.idxs_measured = torch.randperm(self.num_pts)
-        #     self.idxs_gt = torch.randperm(self.num_pts * self.gt_pts_scaler)
 
     def __len__(self):
         return len(self.ds)
