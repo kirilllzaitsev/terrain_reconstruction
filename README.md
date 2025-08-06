@@ -2,7 +2,9 @@
 
 The goal is to complete partial point clouds captured by a robot's LiDAR sensor to enable the robot to navigate in unstructured terrains.
 
-This directory hosts two packages: `terrain_representation` and `terrain_synthesis`. The former contains the code to train and evaluate several neural networks for point cloud completion. The latter contains the code to synthesize terrains for training. Simulation code is in the `excavation_terrain_sim` directory and is meant to collected data from IsaacSim.
+This directory hosts the `terrain_representation` package with the code to train and evaluate voxel-based and point-based neural networks for point cloud completion.
+
+To get access to the code for data synthesis, please contact [RSL members](https://rsl.ethz.ch/the-lab/people.html) working with autonomous excavation.
 
 ## Pre-requisites
 
@@ -23,14 +25,14 @@ with the driver version `535.183.01`.
 
 ### Python packages
 
-- `pip install -e .` installs the `terrain_representation` and `terrain_synthesis` packages with their dependencies
+- `pip install -e .` installs the `terrain_representation` package with their dependencies
 - `point_based_models` contains three packages needed for working with point-based models, originally taken from their respective Git repositories. Make sure to follow READMEs in the respective directories to install their dependencies as well
 - Minkowski Engine should be installed separately via `pip install git+https://github.com/NVIDIA/MinkowskiEngine.git` or by cloning the repository and running `python setup.py install --blas=openblas` from its root directory
 - extra requirements for running the code in ROS are included in the `requirements_extra_ros.txt` file
 
 ### Data and model artifacts
 
-There are two archives (not publicly available) containing data and model weights:
+There are two archives (not publicly available, please contact RSL members) containing data and model weights:
 
 - `construction_site.zip` with synthetic and real datasets for training and evaluation 
 - `artifacts.zip` with the best-performing models
@@ -167,7 +169,7 @@ Now you can run the training script with the `--do_optimize` flag to optimize th
 
 ## Deployment
 
-### Integration with elevation mapping (for unstructured terrains)
+### Integration with elevation mapping
 
 You can use the model with the `elevation_mapping` ROS package either by integrating the inference code into ROS or completing the pointclouds offline and pointing the `elevation_mapping` to the directory with the completed scans.
 
