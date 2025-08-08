@@ -6,9 +6,9 @@ This directory hosts the `terrain_representation` package with the code to train
 
 Demo elevation maps from raw and completed point clouds:
 
-| [![Raw](bremgarten_raw.gif)](assets/bremgarten_raw.gif) | [![Completed](bremgarten_pred.gif)](assets/bremgarten_pred.gif) |
+| [![Raw](assets/bremgarten_raw.gif)](assets/bremgarten_raw.gif) | [![Completed](assets/bremgarten_pred.gif)](assets/bremgarten_pred.gif) |
 |---------------------------------------------|---------------------------------------------|
-| [![Raw](hong2_raw.gif)](assets/hong2_raw.gif) | [![Completed](hong2_pred.gif)](assets/hong2_pred.gif) |
+| [![Raw](assets/hong2_raw.gif)](assets/hong2_raw.gif) | [![Completed](assets/hong2_pred.gif)](assets/hong2_pred.gif) |
 
 To get access to the code for data synthesis, please contact [RSL members](https://rsl.ethz.ch/the-lab/people.html) working with autonomous excavation.
 
